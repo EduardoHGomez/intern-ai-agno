@@ -22,6 +22,17 @@ uvicorn main:app --reload --port 8000
 
 The server will be available at: `http://localhost:8000`
 
+## How to run
+```
+fastapi run main.py
+```
+
+## How to run in Production
+For any ASGI Server
+```
+uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
 ## Endpoints
 
 - `GET /health` - Health check endpoint
