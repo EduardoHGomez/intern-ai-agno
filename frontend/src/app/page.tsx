@@ -14,53 +14,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, Loader2 } from "lucide-react";
 import Dither from "@/components/Dither";
 import DecryptedText from "@/components/DecryptedText";
-import BubbleMenu from "@/components/BubbleMenu";
 import Image from "next/image";
-
-const toolItems = [
-  {
-    label: "Drive",
-    href: "#",
-    ariaLabel: "Google Drive",
-    rotation: -8,
-    hoverStyles: { bgColor: "#4285f4", textColor: "#ffffff" }
-  },
-  {
-    label: "Gmail",
-    href: "#",
-    ariaLabel: "Gmail",
-    rotation: 8,
-    hoverStyles: { bgColor: "#ea4335", textColor: "#ffffff" }
-  },
-  {
-    label: "Google",
-    href: "#",
-    ariaLabel: "Google",
-    rotation: -8,
-    hoverStyles: { bgColor: "#fbbc04", textColor: "#ffffff" }
-  },
-  {
-    label: "Slack",
-    href: "#",
-    ariaLabel: "Slack",
-    rotation: 8,
-    hoverStyles: { bgColor: "#611f69", textColor: "#ffffff" }
-  },
-  {
-    label: "Zoom",
-    href: "#",
-    ariaLabel: "Zoom",
-    rotation: -8,
-    hoverStyles: { bgColor: "#2d8cff", textColor: "#ffffff" }
-  },
-  {
-    label: "Analytics",
-    href: "#",
-    ariaLabel: "Analytics",
-    rotation: 8,
-    hoverStyles: { bgColor: "#ff6f00", textColor: "#ffffff" }
-  }
-];
 
 export default function Home() {
   const router = useRouter();
@@ -198,7 +152,7 @@ export default function Home() {
                   Your Intern without bothering you
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 text-lg">
-                  Connect your applications and much more
+                  Manage your own connections
                 </p>
               </div>
 
@@ -212,11 +166,15 @@ export default function Home() {
                   { src: "/zoom.svg", alt: "Zoom", color: "#2d8cff" },
                   { src: "/analytics.svg", alt: "Analytics", color: "#ff6f00" }
                 ].map((tool, idx) => (
-                  <div
+                  <button
                     key={idx}
                     className="group relative flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-white dark:bg-zinc-800 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-110 cursor-pointer border border-gray-200 dark:border-zinc-700"
                     style={{
                       transitionDelay: `${idx * 50}ms`
+                    }}
+                    onClick={() => {
+                      // Handle tool connection
+                      console.log(`Connect ${tool.alt}`);
                     }}
                   >
                     <Image
@@ -224,9 +182,9 @@ export default function Home() {
                       alt={tool.alt}
                       width={40}
                       height={40}
-                      className="w-8 h-8 md:w-10 md:h-10 object-contain transition-transform group-hover:scale-110"
+                      className="w-8 h-8 md:w-10 md:h-10 object-contain transition-transform group-hover:scale-110 pointer-events-none"
                     />
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
