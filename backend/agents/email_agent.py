@@ -8,14 +8,12 @@ DATABASE_PATH = os.getenv("DATABASE_PATH", "agno.db")
 
 
 def get_recent_emails(limit: int = 10) -> str:
+    # Returns a String based list of emails
+    # such that it can be parsed easily from the frontend
     """
     Retrieves the most recent emails from the database.
+    Args: limit: Maximum number of emails to retrieve (default: 10)
 
-    Args:
-        limit: Maximum number of emails to retrieve (default: 10)
-
-    Returns:
-        Formatted string with email details
     """
     try:
         conn = sqlite3.connect(DATABASE_PATH)
@@ -46,14 +44,10 @@ def get_recent_emails(limit: int = 10) -> str:
 
 
 def search_emails(keyword: str) -> str:
+    # Searches emails by keyword in subject or content.
     """
-    Searches emails by keyword in subject or content.
-
-    Args:
-        keyword: Keyword to search for
-
-    Returns:
-        Formatted string with matching emails
+    Args: keyword: Keyword to search for
+    Returns: Formatted string with matching emails
     """
     try:
         conn = sqlite3.connect(DATABASE_PATH)
@@ -84,14 +78,10 @@ def search_emails(keyword: str) -> str:
 
 
 def get_emails_by_sender(sender_name: str) -> str:
+    # Retrieves emails from a specific sender.
     """
-    Retrieves emails from a specific sender.
-
-    Args:
-        sender_name: Name or email of the sender
-
-    Returns:
-        Formatted string with emails from that sender
+    Args: sender_name: Name or email of the sender
+    Returns: Formatted string with emails from that sender
     """
     try:
         conn = sqlite3.connect(DATABASE_PATH)

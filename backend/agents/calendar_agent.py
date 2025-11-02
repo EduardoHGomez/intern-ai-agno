@@ -7,16 +7,15 @@ from agno.db.sqlite import SqliteDb
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "agno.db")
 
+# -------------------
+# Tools and then Agent 
+# -------------------
 
 def get_upcoming_events(days: int = 7) -> str:
+    # Retrieves upcoming calendar events for the next N days.
     """
-    Retrieves upcoming calendar events for the next N days.
-
-    Args:
-        days: Number of days to look ahead (default: 7)
-
-    Returns:
-        Formatted string with upcoming events
+    Args: days: Number of days to look ahead (default: 7)
+    Returns: Formatted string with upcoming events
     """
     try:
         conn = sqlite3.connect(DATABASE_PATH)
@@ -32,6 +31,7 @@ def get_upcoming_events(days: int = 7) -> str:
             ORDER BY start_ts ASC
         """, (now.strftime("%Y-%m-%dT%H:%M:%SZ"), end_date.strftime("%Y-%m-%dT%H:%M:%SZ")))
 
+        # Basic fetch all
         rows = cursor.fetchall()
         conn.close()
 
@@ -50,22 +50,22 @@ def get_upcoming_events(days: int = 7) -> str:
 
 
 def add_calendar_event(title: str, start_ts: str, end_ts: str, attendees: str = "") -> str:
+    # Add a new event to the calendar and returns a confirmation of creation
     """
     Adds a new event to the calendar.
-
     Args:
         title: Event title
         start_ts: Start timestamp in ISO8601 format (e.g., '2025-11-03T14:00:00Z')
         end_ts: End timestamp in ISO8601 format
         attendees: Comma-separated list of attendees (optional)
-
-    Returns:
-        Confirmation message with event ID
     """
+
+
     try:
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
 
+        # TEST excution into table
         cursor.execute("""
             INSERT INTO calendar (title, start_ts, end_ts, attendees)
             VALUES (?, ?, ?, ?)
@@ -82,14 +82,10 @@ def add_calendar_event(title: str, start_ts: str, end_ts: str, attendees: str = 
 
 
 def get_events_by_attendee(attendee_name: str) -> str:
+    # Retrieves events where a specific person is an attendee.
     """
-    Retrieves events where a specific person is an attendee.
-
-    Args:
-        attendee_name: Name or email of the attendee
-
-    Returns:
-        Formatted string with events for that attendee
+        Args: attendee_name: Name or email of the attendee
+        Returns: Formatted string with events for that attendee
     """
     try:
         conn = sqlite3.connect(DATABASE_PATH)
@@ -122,9 +118,7 @@ def get_events_by_attendee(attendee_name: str) -> str:
 def get_all_events() -> str:
     """
     Retrieves all calendar events from the database.
-
-    Returns:
-        Formatted string with all events
+    Returns: Formatted string with all events
     """
     try:
         conn = sqlite3.connect(DATABASE_PATH)
@@ -134,7 +128,7 @@ def get_all_events() -> str:
             SELECT id, title, start_ts, end_ts, attendees
             FROM calendar
             ORDER BY start_ts ASC
-        """)
+                """)
 
         rows = cursor.fetchall()
         conn.close()

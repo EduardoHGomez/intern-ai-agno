@@ -1,36 +1,191 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agent Frontend
 
-## Getting Started
+A modern chat interface for interacting with AI agents that manage emails and calendar events. Built with Next.js 15, React 19, and TypeScript.
 
-First, run the development server:
+## What It Does
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+This frontend provides a clean, intuitive interface for chatting with an AI-powered personal assistant. The assistant can:
+- Read and summarize your emails
+- Search through email history
+- Manage calendar events
+- Show your upcoming schedule
+- Coordinate between email and calendar tasks
+
+All responses are rendered beautifully with markdown support, making information easy to read and understand.
+
+## Tech Stack
+
+- **Next.js 15** - React framework with App Router
+- **React 19** - UI library
+- **TypeScript** - Type safety
+- **Tailwind CSS v4** - Styling
+- **shadcn/ui** - UI components
+- **react-markdown** - Markdown rendering
+
+## Installation
+
+1. **Navigate to the frontend directory:**
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## Configuration
+
+### Backend API URL
+
+The frontend connects to the backend API running at `http://localhost:8000`.
+
+If you need to change the API URL, update it in:
+- `src/app/chat/[session_id]/page.tsx` (lines 48, 77)
+
+### Environment Variables
+
+Currently, no environment variables are required for the frontend. The backend URL is hardcoded for development simplicity.
+
+## Project Structure
+
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── chat/[session_id]/    # Chat page with session management
+│   │   ├── history/               # Chat history page
+│   │   ├── globals.css            # Global styles
+│   │   └── page.tsx               # Home page
+│   ├── components/
+│   │   ├── ui/                    # shadcn/ui components
+│   │   └── app-sidebar.tsx        # Sidebar navigation
+│   └── lib/
+│       ├── sessions.ts            # Session management logic
+│       └── utils.ts               # Utility functions
+├── public/                         # Static assets
+└── package.json
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Chat Interface
+- **Real-time messaging** - Send messages and get instant responses
+- **Session management** - Each conversation has a unique session ID
+- **Message history** - All messages are persisted and loaded automatically
+- **Markdown support** - Assistant responses render as formatted markdown
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Navigation
+- **Sidebar** - Access chat history and create new conversations
+- **Responsive design** - Works on desktop and mobile
+- **Dark mode ready** - Supports dark theme
 
-## Learn More
+### Session Management
+Sessions are stored in **localStorage** with the following structure:
+```typescript
+{
+  id: string;           // UUID v4
+  title: string;        // Auto-generated from first message
+  createdAt: number;    // Timestamp
+  updatedAt: number;    // Last activity timestamp
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+## API Routes Used
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The frontend communicates with these backend endpoints:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### GET `/api/sessions/{session_id}/messages`
+Retrieves all messages for a specific session.
 
-## Deploy on Vercel
+**Response:**
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Show me my recent emails"
+    },
+    {
+      "role": "assistant",
+      "content": "Here are your recent emails..."
+    }
+  ]
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### POST `/api/chat`
+Sends a message and receives a response.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Request:**
+```json
+{
+  "message": "What events do I have this week?",
+  "session_id": "123e4567-e89b-12d3-a456-426614174000",
+  "stream": false
+}
+```
+
+**Response:**
+```json
+{
+  "session_id": "123e4567-e89b-12d3-a456-426614174000",
+  "response": "Here are your upcoming events..."
+}
+```
+
+## How to Use
+
+1. **Start a new chat:**
+   - Click the home icon or visit `http://localhost:3000`
+   - Type your message in the text area
+   - Press Enter or click the send button
+
+2. **View chat history:**
+   - Click the history icon in the sidebar
+   - Select a previous conversation to continue
+
+3. **Ask the assistant:**
+   - "Show me my recent emails"
+   - "What events do I have this week?"
+   - "Find emails from Dana"
+   - "Show me events with Chris"
+
+## Development
+
+### Build for Production
+```bash
+npm run build
+```
+
+### Run Production Build
+```bash
+npm start
+```
+
+### Lint Code
+```bash
+npm run lint
+```
+
+## Notes
+
+- **Session IDs in URLs:** For development simplicity, session IDs are exposed in URLs. In production, implement proper authentication.
+- **No Authentication:** The current version doesn't include user authentication. Add this before deploying to production.
+- **Local Storage:** Session metadata is stored client-side. Consider moving to a database for multi-device support.
+
+## Future Improvements
+
+- Add user authentication
+- Implement streaming responses for real-time message generation
+- Add file upload support for emails/attachments
+- Multi-device session sync with backend database
+- Export chat history feature
