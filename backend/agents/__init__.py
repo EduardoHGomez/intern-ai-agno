@@ -1,7 +1,7 @@
 # Agents
 
 from .intern_agent import InternAgent
-from .scheduler_agent import SchedulerAgent
+from .email_agent import EmailAgent
 
 # To be exported
-__all__ = ["InternAgent", "SchedulerAgent"]
+__all__ = ["InternAgent", "EmailAgent"]
