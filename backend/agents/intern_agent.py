@@ -5,7 +5,7 @@ from agno.db.sqlite import SqliteDb
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "agno.db")
 
-InterAgent = Agent(
+InternAgent = Agent(
     name="Intern AI Agent",
     model=OpenAIChat(
         id="gpt-4",

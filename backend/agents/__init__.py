@@ -1,6 +1,6 @@
 # Agents
 
-from .intern_agent import InterAgent
+from .intern_agent import InternAgent
 from .scheduler_agent import SchedulerAgent
 
 # To be exported

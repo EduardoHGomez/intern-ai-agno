@@ -1,22 +1,21 @@
-# Backend Setup
+# Intern AI - Backend
 
-## Installation
+This is the backend used to deploy the Agent OS on the backend.
 
+## Installation and Setup
 1. Create a virtual environment (recommended):
-```bash
+```
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 2. Install dependencies:
-```bash
+```
 pip install -r requirements.txt
 ```
 
-## Running the Server
-
-Start the FastAPI server:
-```bash
+3. Start the FastAPI server:
+```
 uvicorn main:app --reload --port 8000
 ```
 
