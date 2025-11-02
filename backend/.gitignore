@@ -1,2 +1,8 @@
-
+./__pycache__
 *.env
+
+# DB
+*.db
+*.sqlite3
+
+.venv/

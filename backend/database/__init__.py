@@ -1,0 +1,5 @@
+"""Database package."""
+
+from .db import get_database
+
+__all__ = ["get_database"]
