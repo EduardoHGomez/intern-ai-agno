@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from agno.os import AgentOS
 
-from agents import InternAgent, SchedulerAgent
+from agents import InternAgent, EmailAgent, CalendarAgent
 from routers import health_router, chat_router
 
 # Load environment variables
@@ -30,10 +30,10 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(chat_router)
 
-# Create AgentOS with all agents
+# Create AgentOS with individual agents (InternAgent is a Team used directly in routers)
 agent_os = AgentOS(
     description="Chat API with Agno AgentOS",
-    agents=[InternAgent, SchedulerAgent],
+    agents=[EmailAgent, CalendarAgent],
     base_app=app,
 )
 

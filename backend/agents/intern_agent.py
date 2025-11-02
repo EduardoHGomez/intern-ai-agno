@@ -1,18 +1,8 @@
 import os
-from agno.agent import Agent
-from agno.models.openai import OpenAIChat
 from agno.db.sqlite import SqliteDb
+from .rag_team import RAGTeam
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "agno.db")
 
-InternAgent = Agent(
-    name="Intern AI Agent",
-    model=OpenAIChat(
-        id="gpt-4",
-    ),
-    db=SqliteDb(db_file=DATABASE_PATH),
-    add_history_to_context=True,
-    markdown=True,
-    store_history_messages=True,
-    num_history_runs=3,
-)
+# InternAgent now uses the RAGTeam for coordinated email and calendar management
+InternAgent = RAGTeam
