@@ -17,7 +17,7 @@ interface DecryptedTextProps extends HTMLMotionProps<'span'> {
 
 export default function DecryptedText({
   text,
-  speed = 50,
+  speed = 80,
   maxIterations = 10,
   sequential = false,
   revealDirection = 'start',
