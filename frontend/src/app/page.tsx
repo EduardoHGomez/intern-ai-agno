@@ -170,7 +170,7 @@ export default function Home() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
-                    placeholder="Type your message here..."
+                    placeholder="What are we gonna cook today?"
                     disabled={isLoading}
                     className="min-h-[60px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
                   />
@@ -198,7 +198,7 @@ export default function Home() {
                   Your Intern without bothering you
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 text-lg">
-                  Connect these tools
+                  Connect your applications and much more
                 </p>
               </div>
 

@@ -49,7 +49,7 @@ export function AppSidebar({ onNewChat, onToggleHistory, ...props }: AppSidebarP
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         {/* Collapse/Expand trigger */}
-        <div className="flex items-center justify-between px-2 py-1">
+        <div className="flex items-center justify-center px-2 py-1">
           <SidebarTrigger />
         </div>
 
@@ -58,7 +58,7 @@ export function AppSidebar({ onNewChat, onToggleHistory, ...props }: AppSidebarP
             <SidebarMenuButton size="lg" asChild>
               <div>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <span className="font-bold text-lg">IA</span>
+                  <span className="font-bold text-lg">AI</span>
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Intern AI</span>
