@@ -18,28 +18,41 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 
-// Menu items
-const menuItems = [
-  {
-    title: "New Chat",
-    icon: MessageSquarePlus,
-  },
-  {
-    title: "History",
-    icon: History,
-  },
-  {
-    title: "Models",
-    icon: Settings2,
-  },
-]
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
+  onNewChat?: () => void;
+  onToggleHistory?: () => void;
+};
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ onNewChat, onToggleHistory, ...props }: AppSidebarProps) {
+  const menuItems = [
+    {
+      title: "New Chat",
+      icon: MessageSquarePlus,
+      onClick: onNewChat,
+    },
+    {
+      title: "History",
+      icon: History,
+      onClick: onToggleHistory,
+    },
+    {
+      title: "Models",
+      icon: Settings2,
+      onClick: undefined,
+    },
+  ];
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
+        {/* Collapse/Expand trigger */}
+        <div className="flex items-center justify-between px-2 py-1">
+          <SidebarTrigger />
+        </div>
+
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
@@ -64,7 +77,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <button>
+                    <button onClick={item.onClick}>
                       <item.icon />
                       <span>{item.title}</span>
                     </button>
