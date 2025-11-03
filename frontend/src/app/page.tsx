@@ -15,6 +15,7 @@ import { ArrowUpIcon, Loader2 } from "lucide-react";
 import Dither from "@/components/Dither";
 import DecryptedText from "@/components/DecryptedText";
 import Image from "next/image";
+import { config } from "@/lib/config";
 
 export default function Home() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export default function Home() {
       localStorage.setItem("agnoSessions", JSON.stringify(sessions));
 
       // Send message with the new session_id
-      const response = await fetch("http://localhost:8000/api/chat", {
+      const response = await fetch(`${config.apiUrl}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -19,6 +19,7 @@ import { ArrowUpIcon, Loader2 } from "lucide-react";
 import { touchSession, getSession, updateSessionTitle } from "@/lib/sessions";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { config } from "@/lib/config";
 
 type Message = {
   role: "user" | "assistant";
@@ -47,7 +48,7 @@ export default function ChatPage() {
 
         // Fetch conversation history from backend
         const response = await fetch(
-          `http://localhost:8000/api/sessions/${sessionId}/messages`
+          `${config.apiUrl}/api/sessions/${sessionId}/messages`
         );
 
         if (response.ok) {
@@ -76,7 +77,7 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/chat", {
+      const response = await fetch(`${config.apiUrl}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
