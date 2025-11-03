@@ -2,6 +2,17 @@
 
 This is a RAG based assistant to connect your email and calendar application using Agno's framework.
 
+## Quick demo
+
+### Landing Page
+![Landing Page](bin/landing.png)
+
+### Chat Interface
+![Chat Demo](bin/Demo1.png)
+
+### Schedule Management
+![Schedule](bin/Schedule.png)
+
 
 ## Quick Start
 
