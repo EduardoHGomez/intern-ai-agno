@@ -69,7 +69,6 @@ frontend/
 │   │   ├── ui/                    # shadcn/ui components
 │   │   └── app-sidebar.tsx        # Sidebar navigation
 │   └── lib/
-│       ├── sessions.ts            # Session management logic
 │       └── utils.ts               # Utility functions
 ├── public/                         # Static assets
 └── package.json
