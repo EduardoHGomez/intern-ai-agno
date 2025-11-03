@@ -4,5 +4,5 @@
  */
 
 export const config = {
-  apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://52.73.252.35:8000',
 } as const;
