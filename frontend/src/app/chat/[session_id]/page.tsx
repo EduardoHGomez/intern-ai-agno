@@ -17,6 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, Loader2 } from "lucide-react";
 import { touchSession, getSession, updateSessionTitle } from "@/lib/sessions";
+import { Toggle } from "@/components/ui/toggle"
+import { Search } from "lucide-react"
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { config } from "@/lib/config";
@@ -35,6 +37,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [useSearch, setUseSearch] = useState(false)
+
 
   // Load session messages from backend on mount
   useEffect(() => {
@@ -83,6 +87,8 @@ export default function ChatPage() {
         body: JSON.stringify({
           message: userInput,
           session_id: sessionId, // Use session_id from URL
+          search: useSearch, // <-- toggle value
+
         }),
       });
 
@@ -209,31 +215,64 @@ export default function ChatPage() {
                 </div>
 
                 {/* Input Area - Bottom */}
-                <div className="sticky bottom-0 bg-zinc-50 dark:bg-zinc-900 pt-4">
-                  <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-300 dark:border-zinc-700 p-2 shadow-lg flex items-end gap-2">
-                    <Textarea
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={handleKeyPress}
-                      placeholder="Type your message here..."
-                      disabled={isLoading}
-                      className="min-h-[60px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
-                    />
-                    <Button
-                      onClick={handleSend}
-                      disabled={isLoading || !input.trim()}
-                      size="icon"
-                      className="bg-slate-700 hover:bg-slate-600 text-white shrink-0"
-                      aria-label="Send message"
-                    >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <ArrowUpIcon className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
+          <div className="sticky bottom-0 bg-zinc-50 dark:bg-zinc-900 pt-4">
+            <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-300 dark:border-zinc-700 p-2 shadow-lg flex flex-col gap-2">
+              {/* Textarea (top) */}
+              <div className="flex items-end gap-2">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder="Type your message here..."
+                  disabled={isLoading}
+                  className="min-h-[60px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
+                />
+              </div>
+
+              {/* Bottom control row: toggle (left) + send arrow (right) */}
+              <div className="flex items-center justify-between px-1">
+                {/* Left: Exa AI Search toggle */}
+                <Toggle
+                  aria-label="Toggle Exa AI Search"
+                  pressed={useSearch}
+                  onPressedChange={setUseSearch}
+                  variant="outline"
+                  size="sm"
+                  className="
+                    text-xs font-medium rounded-full px-3 py-1
+                    border border-zinc-300 dark:border-zinc-700
+                    data-[state=on]:bg-[hsl(215_27.9%_16.9%)]
+                    data-[state=on]:text-white
+                    hover:bg-zinc-100 dark:hover:bg-zinc-800
+                    transition-colors
+                  "
+                >
+                  + Exa AI Search
+                </Toggle>
+
+                {/* Right: Send arrow button */}
+                <Button
+                  onClick={handleSend}
+                  disabled={isLoading || !input.trim()}
+                  size="icon"
+                  className="
+                    bg-[hsl(215_27.9%_16.9%)]
+                    hover:bg-[hsl(215_27.9%_25%)]
+                    text-white rounded-full shrink-0
+                  "
+                  aria-label="Send message"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ArrowUpIcon className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+
               </div>
             )}
           </div>

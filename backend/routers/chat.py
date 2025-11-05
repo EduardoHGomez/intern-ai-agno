@@ -1,112 +1,201 @@
-# Endpoint for the chats
-
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, Body
-from fastapi.responses import StreamingResponse
-from agents import InternAgent
+from agents import RAGTeam
 import json
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
 @router.get("/sessions/{session_id}/messages")
 async def get_session_messages(session_id: str):
-    # Gets all messages given a session id
-    """
-    Args: session_id: The session UUID
-    Returns: Dict with 'messages' array containing {role, content} objects
-    """
+    """Gets all messages for a session including Exa search results"""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"[{timestamp}] GET /api/sessions/{session_id}/messages")
 
     try:
-        # Using Agno's internal service
-        messages = InternAgent.get_messages_for_session(session_id=session_id)
+        messages = RAGTeam.get_messages_for_session(session_id=session_id)
 
-        # Conversion role or assitant para solo tener cualquiera de los dos
         formatted_messages = []
         for msg in messages:
             role = msg.role if hasattr(msg, 'role') else 'assistant'
             content = msg.content if hasattr(msg, 'content') else str(msg)
+            
+            # Extract tool calls/results if present
+            tool_data = None
+            if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                tool_data = {"tool_calls": []}
+                for call in msg.tool_calls:
+                    # Handle both dict and object formats
+                    if isinstance(call, dict):
+                        tool_data["tool_calls"].append({
+                            "name": call.get("name"),
+                            "arguments": call.get("arguments"),
+                            "result": call.get("result")
+                        })
+                    else:
+                        tool_data["tool_calls"].append({
+                            "name": getattr(call, 'name', None),
+                            "arguments": getattr(call, 'arguments', None),
+                            "result": getattr(call, 'result', None)
+                        })
 
             if role in ['user', 'assistant']:
-                formatted_messages.append({
+                message_obj = {
                     "role": role,
                     "content": content
-                })
+                }
+                if tool_data:
+                    message_obj["tool_data"] = tool_data
+                    
+                formatted_messages.append(message_obj)
 
-        print(f"[{timestamp}] GET /api/sessions/{session_id}/messages - {len(formatted_messages)} messages")
+        print(f"[{timestamp}] Retrieved {len(formatted_messages)} messages")
         return {"messages": formatted_messages}
 
     except Exception as e:
-        print(f"[{timestamp}] GET /api/sessions/{session_id}/messages - Error: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="An error occurred while retrieving session messages"
-        )
+        print(f"[{timestamp}] Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/chat")
 async def chat(payload: dict = Body(...)):
-    # Endpoint para un chat sencillo
-    # NOTE: The agent maintains conversation history in the database keyed by session_id,
-    # so it can reference previous messages in the conversation.
-
     """
-    Args: payload: Dict with 'message' (str), 'session_id' (str, UUID v4), and optional 'stream' (bool)
-
-    Returns: Dict with 'session_id' and 'response' OR streaming response
-
-    Raises: HTTPException: If there's an error processing the request
+    Chat endpoint with MCP/Exa integration
+    
+    Payload:
+        - message: str (required)
+        - session_id: str (required, UUID v4)
+        
+    Returns:
+        - session_id: str
+        - response: str (agent response)
+        - search_results: list (if Exa search was used)
     """
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     try:
         message = payload.get("message")
         session_id = payload.get("session_id")
-        stream = payload.get("stream", False)
-
-        # print(f"[{timestamp}] POST /api/chat - Payload: {{'message': '{message[:50]}...', 'session_id': '{session_id}'}}")
 
         if not message:
             raise HTTPException(status_code=400, detail="message is required")
+        if not session_id:
+            raise HTTPException(status_code=400, detail="session_id is required")
 
-        # Streaming mode
-        if stream:
-            async def generate():
-                run_response = InternAgent.run(message, session_id=session_id, stream=True)
-                for chunk in run_response:
-                    if hasattr(chunk, 'content') and chunk.content:
-                        data = {"choices": [{"delta": {"content": chunk.content}, "finish_reason": None}]}
-                        yield f"data: {json.dumps(data)}\n\n"
-                yield "data: [DONE]\n\n"
+        print(f"[{timestamp}] POST /api/chat - Session: {session_id}, Message: '{message[:100]}...'")
 
-            return StreamingResponse(generate(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "Connection": "keep-alive"})
+        # Run the team agent
+        run_response = RAGTeam.run(message, session_id=session_id)
 
-        # Run without a session_id is stateless, that's why I used the session_id to retrieve the context
-        run_response = InternAgent.run(message, session_id=session_id)
+        # Extract response text
+        text = (
+            getattr(run_response, "content", None) or 
+            getattr(run_response, "output_text", None) or 
+            str(run_response)
+        )
 
-        # Check if it's a generator (streaming response)
-        if hasattr(run_response, '__next__'):
-            # It's a generator, consume it to get the final result
-            final_response = None
-            for chunk in run_response:
-                final_response = chunk
-            run_result = final_response
-        else:
-            # It's already a complete response object
-            run_result = run_response
+        # Extract Exa search results and sources
+        search_results = []
+        sources = []
+        
+        if hasattr(run_response, 'messages'):
+            for msg in run_response.messages:
+                if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                    for tool_call in msg.tool_calls:
+                        # Handle both dict and object formats
+                        if isinstance(tool_call, dict):
+                            tool_name = tool_call.get('name', '')
+                            tool_args = tool_call.get('arguments', {})
+                            tool_result = tool_call.get('result')
+                        else:
+                            tool_name = getattr(tool_call, 'name', '')
+                            tool_args = getattr(tool_call, 'arguments', {})
+                            tool_result = getattr(tool_call, 'result', None)
+                        
+                        # Check if it's an Exa tool
+                        if tool_name in ['exa_search', 'exa_get_contents']:
+                            if tool_result:
+                                search_results.append({
+                                    "tool": tool_name,
+                                    "arguments": tool_args,
+                                    "result": tool_result
+                                })
+                                
+                                # Extract URLs/sources
+                                if isinstance(tool_result, dict):
+                                    if 'results' in tool_result:
+                                        for r in tool_result['results']:
+                                            if isinstance(r, dict) and 'url' in r:
+                                                sources.append(r['url'])
+                                elif isinstance(tool_result, list):
+                                    for r in tool_result:
+                                        if isinstance(r, dict) and 'url' in r:
+                                            sources.append(r['url'])
 
-        # Extract the text content from the agent's response
-        text = getattr(run_result, "content", None) or getattr(run_result, "output_text", None) or str(run_result)
+        response_data = {
+            "session_id": run_response.session_id,
+            "response": text
+        }
+        
+        # Add search results if present
+        if search_results:
+            response_data["search_results"] = search_results
+        if sources:
+            response_data["sources"] = list(set(sources))  # Deduplicate
 
-        print(f"[{timestamp}] POST /api/chat - Response: {{'session_id': '{run_result.session_id}', 'response_length': {len(text)}}}")
-        return {"session_id": run_result.session_id, "response": text}
+        print(f"[{timestamp}] Response sent - Length: {len(text)}, Sources: {len(sources)}")
+        return response_data
 
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[{timestamp}] POST /api/chat - Error: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="An error occurred while processing your request"
-        )
+        print(f"[{timestamp}] Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/search")
+async def direct_search(payload: dict = Body(...)):
+    """
+    Direct Exa search endpoint (bypasses agent)
+    
+    Payload:
+        - query: str (required)
+        - num_results: int (optional, default 5)
+        - search_type: str (optional: auto/neural/keyword)
+        - include_content: bool (optional, default False)
+    """
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    try:
+        from agents.exa_agent import ExaAgent
+        
+        query = payload.get("query")
+        if not query:
+            raise HTTPException(status_code=400, detail="query is required")
+        
+        num_results = payload.get("num_results", 5)
+        search_type = payload.get("search_type", "auto")
+        include_content = payload.get("include_content", False)
+        
+        print(f"[{timestamp}] POST /api/search - Query: '{query}', Results: {num_results}")
+        
+        # Use the agent's tool directly
+        tool_call = f"Search for: {query}"
+        if include_content:
+            tool_call += " and get full content"
+            
+        response = ExaAgent.run(tool_call)
+        
+        return {
+            "query": query,
+            "results": response.content
+        }
+        
+    except Exception as e:
+        print(f"[{timestamp}] Error in /api/search: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))

@@ -16,11 +16,14 @@ import Dither from "@/components/Dither";
 import DecryptedText from "@/components/DecryptedText";
 import Image from "next/image";
 import { config } from "@/lib/config";
+import { Toggle } from "@/components/ui/toggle"
+
 
 export default function Home() {
   const router = useRouter();
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [useSearch, setUseSearch] = useState(false)
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -52,6 +55,7 @@ export default function Home() {
         body: JSON.stringify({
           message: userInput,
           session_id: sessionId,
+          search: useSearch,
         }),
       });
 
@@ -120,30 +124,62 @@ export default function Home() {
                 >One assistant to connect your corporate tasks</span>
               </div>
               <div className="w-full animate-fade-in">
-                <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-300 dark:border-zinc-700 p-2 flex items-end gap-2">
-                  <Textarea
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    placeholder="What are we gonna cook today?"
-                    disabled={isLoading}
-                    className="min-h-[60px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
-                  />
-                  <Button
-                    onClick={handleSend}
-                    disabled={isLoading || !input.trim()}
-                    size="icon"
-                    className="bg-slate-700 hover:bg-slate-600 text-white shrink-0"
-                    aria-label="Send message"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <ArrowUpIcon className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </div>
+  <div className="bg-white dark:bg-zinc-800 rounded-lg border border-gray-300 dark:border-zinc-700 p-2 shadow-lg flex flex-col gap-2">
+    {/* Textarea (top) */}
+    <div className="flex items-end gap-2">
+      <Textarea
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKeyPress}
+        placeholder="What are we gonna cook today?"
+        disabled={isLoading}
+        className="min-h-[60px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent flex-1"
+      />
+    </div>
+
+    {/* Bottom controls: left toggle + right arrow */}
+    <div className="flex items-center justify-between px-1">
+      <Toggle
+        aria-label="Toggle Exa AI Search"
+        pressed={useSearch}
+        onPressedChange={setUseSearch}
+        variant="outline"
+        size="sm"
+        className="
+          text-xs font-medium rounded-full px-3 py-1
+          border border-zinc-300 dark:border-zinc-700
+          hover:bg-zinc-100 dark:hover:bg-zinc-800
+          data-[state=on]:bg-[hsl(215_27.9%_16.9%)]
+          data-[state=on]:text-white
+          transition-colors
+        "
+      >
+        + Exa AI Search
+      </Toggle>
+
+      <Button
+        onClick={handleSend}
+        disabled={isLoading || !input.trim()}
+        size="icon"
+        className="
+          bg-[hsl(215_27.9%_16.9%)]
+          hover:bg-[hsl(215_27.9%_25%)]
+          text-white rounded-full shrink-0
+        "
+        aria-label="Send message"
+      >
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <ArrowUpIcon className="h-4 w-4" />
+        )}
+      </Button>
+    </div>
+  </div>
+</div>
+
+
+
             </div>
 
             {/* Tools Section */}
