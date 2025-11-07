@@ -8,28 +8,47 @@ from .exa_agent import ExaAgent
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", "agno.db")
 
-RAGTeam = Team(
-    name="Personal Assistant Team",
-    model=OpenAIChat(id="gpt-4o"),
-    members=[EmailAgent, CalendarAgent, ExaAgent],
-    db=SqliteDb(db_file=DATABASE_PATH),
-    instructions=[
-        "Work together to help users manage their emails, calendar, and information needs.",
-        "**Email Agent**: Retrieve and summarize emails, extract key information and names.",
-        "**Calendar Agent**: Manage calendar events, show upcoming schedule, and add new events.",
-        "**Exa Search Agent**: Handle ALL web searches, research queries, news lookups, documentation searches, and content retrieval requests.",
-        "Use Exa Search Agent when the user asks to:",
-        "  - Search for information, news, articles, or documentation",
-        "  - Find content about specific topics or companies",
-        "  - Get current information about events, people, or technologies",
-        "  - Retrieve content from specific URLs",
-        "  - Research a topic or question",
-        "Coordinate between agents when tasks involve multiple domains.",
-        "Provide comprehensive, well-structured responses with sources when using Exa.",
-        "Always include source URLs when information comes from web searches.",
-    ],
-    add_history_to_context=True,
-    store_history_messages=True,
-    num_history_runs=3,
-    markdown=True,
-)
+# RAGTeam = Team(
+#     name="Personal Assistant Team",
+#     model=OpenAIChat(id="gpt-4o"),
+#     members=[EmailAgent, CalendarAgent, ExaAgent],
+#     db=SqliteDb(db_file=DATABASE_PATH),
+#     instructions=[
+#         "Work together to help users manage their emails, calendar, and information needs.",
+#         "**Email Agent**: Retrieve and summarize emails, extract key information and names.",
+#         "**Calendar Agent**: Manage calendar events, show upcoming schedule, and add new events.",
+#         "**Exa Search Agent**: Handle ALL web searches, research queries, news lookups, documentation searches, and content retrieval requests.",
+#         "Use Exa Search Agent when the user asks to:",
+#         "  - Search for information, news, articles, or documentation",
+#         "  - Find content about specific topics or companies",
+#         "  - Get current information about events, people, or technologies",
+#         "  - Retrieve content from specific URLs",
+#         "  - Research a topic or question",
+#         "Coordinate between agents when tasks involve multiple domains.",
+#         "Provide comprehensive, well-structured responses with sources when using Exa.",
+#         "Always include source URLs when information comes from web searches.",
+#     ],
+#     add_history_to_context=True,
+#     store_history_messages=True,
+#     num_history_runs=3,
+#     markdown=True,
+# )
+
+class RAGTeam(Team):
+
+    def __init__(self, modelName: str = 'gpt-4o'):
+        super().__init__(
+            name="Personal Assistant Team",
+            model=OpenAIChat(id=modelName),
+            members=[EmailAgent, CalendarAgent, ExaAgent],
+            db=SqliteDb(db_file=DATABASE_PATH),
+            instructions=[
+                "When routing to ExaAgent, PASS THROUGH the full formatted response with sources.",
+                "DO NOT summarize or truncate search results from ExaAgent.",
+                "ExaAgent will handle all formatting - just return its response directly.",
+            ],
+            add_history_to_context=True,
+            store_history_messages=True,
+            num_history_runs=3,
+            markdown=True,
+        )

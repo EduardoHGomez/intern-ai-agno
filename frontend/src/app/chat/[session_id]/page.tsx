@@ -17,11 +17,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ArrowUpIcon, Loader2 } from "lucide-react";
 import { touchSession, getSession, updateSessionTitle } from "@/lib/sessions";
-import { Toggle } from "@/components/ui/toggle"
-import { Search } from "lucide-react"
+import { Toggle } from "@/components/ui/toggle";
+import { Search } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { config } from "@/lib/config";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Message = {
   role: "user" | "assistant";
@@ -37,7 +44,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
-  const [useSearch, setUseSearch] = useState(false)
+  const [useSearch, setUseSearch] = useState(false);
+  const [model, setModel] = useState("gpt-4o");
 
 
   // Load session messages from backend on mount
@@ -88,7 +96,7 @@ export default function ChatPage() {
           message: userInput,
           session_id: sessionId, // Use session_id from URL
           search: useSearch, // <-- toggle value
-
+          model: model,
         }),
       });
 
@@ -229,26 +237,40 @@ export default function ChatPage() {
                 />
               </div>
 
-              {/* Bottom control row: toggle (left) + send arrow (right) */}
+              {/* Bottom control row: toggle + model dropdown (left) + send arrow (right) */}
               <div className="flex items-center justify-between px-1">
-                {/* Left: Exa AI Search toggle */}
-                <Toggle
-                  aria-label="Toggle Exa AI Search"
-                  pressed={useSearch}
-                  onPressedChange={setUseSearch}
-                  variant="outline"
-                  size="sm"
-                  className="
-                    text-xs font-medium rounded-full px-3 py-1
-                    border border-zinc-300 dark:border-zinc-700
-                    data-[state=on]:bg-[hsl(215_27.9%_16.9%)]
-                    data-[state=on]:text-white
-                    hover:bg-zinc-100 dark:hover:bg-zinc-800
-                    transition-colors
-                  "
-                >
-                  + Exa AI Search
-                </Toggle>
+                {/* Left: Exa AI Search toggle + Model dropdown */}
+                <div className="flex items-center gap-2">
+                  <Toggle
+                    aria-label="Toggle Exa AI Search"
+                    pressed={useSearch}
+                    onPressedChange={setUseSearch}
+                    variant="outline"
+                    size="sm"
+                    className="
+                      text-xs font-medium rounded-full px-3 py-1
+                      border border-zinc-300 dark:border-zinc-700
+                      data-[state=on]:bg-[hsl(215_27.9%_16.9%)]
+                      data-[state=on]:text-white
+                      hover:bg-zinc-100 dark:hover:bg-zinc-800
+                      transition-colors
+                    "
+                  >
+                    + Exa AI
+                  </Toggle>
+
+                  <Select value={model} onValueChange={setModel}>
+                    <SelectTrigger className="w-[140px] h-8 text-xs rounded-full border-zinc-300 dark:border-zinc-700">
+                      <SelectValue placeholder="Select model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+                      <SelectItem value="gpt-4o-mini">GPT-4o Mini</SelectItem>
+                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+                      <SelectItem value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 {/* Right: Send arrow button */}
                 <Button

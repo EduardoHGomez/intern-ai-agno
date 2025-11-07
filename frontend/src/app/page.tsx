@@ -16,14 +16,22 @@ import Dither from "@/components/Dither";
 import DecryptedText from "@/components/DecryptedText";
 import Image from "next/image";
 import { config } from "@/lib/config";
-import { Toggle } from "@/components/ui/toggle"
+import { Toggle } from "@/components/ui/toggle";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 
 export default function Home() {
   const router = useRouter();
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [useSearch, setUseSearch] = useState(false)
+  const [useSearch, setUseSearch] = useState(false);
+  const [model, setModel] = useState("gpt-4o");
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -56,6 +64,7 @@ export default function Home() {
           message: userInput,
           session_id: sessionId,
           search: useSearch,
+          model: model,
         }),
       });
 
@@ -137,25 +146,39 @@ export default function Home() {
       />
     </div>
 
-    {/* Bottom controls: left toggle + right arrow */}
+    {/* Bottom controls: left toggle + model dropdown + right arrow */}
     <div className="flex items-center justify-between px-1">
-      <Toggle
-        aria-label="Toggle Exa AI Search"
-        pressed={useSearch}
-        onPressedChange={setUseSearch}
-        variant="outline"
-        size="sm"
-        className="
-          text-xs font-medium rounded-full px-3 py-1
-          border border-zinc-300 dark:border-zinc-700
-          hover:bg-zinc-100 dark:hover:bg-zinc-800
-          data-[state=on]:bg-[hsl(215_27.9%_16.9%)]
-          data-[state=on]:text-white
-          transition-colors
-        "
-      >
-        + Exa AI Search
-      </Toggle>
+      <div className="flex items-center gap-2">
+        <Toggle
+          aria-label="Toggle Exa AI Search"
+          pressed={useSearch}
+          onPressedChange={setUseSearch}
+          variant="outline"
+          size="sm"
+          className="
+            text-xs font-medium rounded-full px-3 py-1
+            border border-zinc-300 dark:border-zinc-700
+            hover:bg-zinc-100 dark:hover:bg-zinc-800
+            data-[state=on]:bg-[hsl(215_27.9%_16.9%)]
+            data-[state=on]:text-white
+            transition-colors
+          "
+        >
+          + Exa AI
+        </Toggle>
+
+        <Select value={model} onValueChange={setModel}>
+          <SelectTrigger className="w-[140px] h-8 text-xs rounded-full border-zinc-300 dark:border-zinc-700">
+            <SelectValue placeholder="Select model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+            <SelectItem value="gpt-4o-mini">GPT-4o Mini</SelectItem>
+            <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
+            <SelectItem value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <Button
         onClick={handleSend}
